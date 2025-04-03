@@ -7,6 +7,11 @@ namespace WeatherForm.Models
         public DbSet<City> Cities { get; set; }
         public DbSet<WeatherData> WeatherRecords { get; set; }
 
+        public AppDbContext()
+        {
+            Database.EnsureCreated();
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             options.UseSqlite("Data Source=weather.db");
@@ -27,4 +32,5 @@ namespace WeatherForm.Models
                 .IsUnique();
         }
     }
+
 }

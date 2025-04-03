@@ -8,35 +8,20 @@ namespace WeatherForm.Models
     {
         [Key]
         public int Id { get; set; }
-
-        // Relacja do tabeli City
         public int CityId { get; set; }
 
         [ForeignKey("CityId")]
         public City City { get; set; }
 
-        [Required]
-        public double Temperature { get; set; }
+        public required double Temperature { get; set; }
+        public required int Humidity { get; set; }
+        public required int Pressure { get; set; }
+        public required string WeatherDescription { get; set; }
+        public required double WindSpeed { get; set; }
+        public required long Sunrise { get; set; }
+        public required long Sunset { get; set; }
 
         [Required]
-        public int Humidity { get; set; }
-
-        [Required]
-        public int Pressure { get; set; }
-
-        [Required]
-        public string WeatherDescription { get; set; }
-
-        [Required]
-        public double WindSpeed { get; set; }
-
-        [Required]
-        public long Sunrise { get; set; }
-
-        [Required]
-        public long Sunset { get; set; }
-
-        [Required]
-        public DateTime Timestamp { get; set; } // Czas pobrania danych pogodowych
+        public DateTime Timestamp { get; set; } 
     }
 }

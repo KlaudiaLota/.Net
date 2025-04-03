@@ -33,8 +33,8 @@
             textBox1 = new TextBox();
             label1 = new Label();
             textBox2 = new TextBox();
-            comboBoxCities = new ComboBox();
             label2 = new Label();
+            textBox3 = new TextBox();
             SuspendLayout();
             // 
             // button1
@@ -78,30 +78,29 @@
             textBox2.Size = new Size(125, 27);
             textBox2.TabIndex = 5;
             // 
-            // comboBoxCities
-            // 
-            comboBoxCities.FormattingEnabled = true;
-            comboBoxCities.Location = new Point(42, 64);
-            comboBoxCities.Name = "comboBoxCities";
-            comboBoxCities.Size = new Size(237, 28);
-            comboBoxCities.TabIndex = 6;
-            // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Location = new Point(42, 32);
             label2.Name = "label2";
-            label2.Size = new Size(161, 20);
+            label2.Size = new Size(146, 20);
             label2.TabIndex = 7;
-            label2.Text = "Wybierz miasto z bazy:";
+            label2.Text = "Wpisz nazwę miasta:";
+            // 
+            // textBox3
+            // 
+            textBox3.Location = new Point(42, 75);
+            textBox3.Name = "textBox3";
+            textBox3.Size = new Size(266, 27);
+            textBox3.TabIndex = 8;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(textBox3);
             Controls.Add(label2);
-            Controls.Add(comboBoxCities);
             Controls.Add(textBox2);
             Controls.Add(label1);
             Controls.Add(textBox1);
@@ -119,7 +118,7 @@
         private TextBox textBox1;
         private Label label1;
         private TextBox textBox2;
-        private ComboBox comboBoxCities;
         private Label label2;
+        private TextBox textBox3;
     }
 }

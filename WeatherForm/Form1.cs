@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 using WeatherForm.Models;
 
 namespace WeatherForm
@@ -12,92 +15,81 @@ namespace WeatherForm
     public partial class Form1 : Form
     {
         public HttpClient client;
-
+        private AppDbContext db;
         public Form1()
         {
             InitializeComponent();
+            db = new AppDbContext();
             client = new HttpClient();
         }
-
-        // Metoda ładowania miast do ComboBox
-        private void LoadCities()
-        {
-            using (var db = new AppDbContext())
-            {
-                var cities = db.Cities.ToList();
-                comboBoxCities.Items.Clear();
-                foreach (var city in cities)
-                {
-                    comboBoxCities.Items.Add(city.Name);  // Załóżmy, że masz tabelę z nazwami miast
-                }
-            }
-        }
-
-        // Obsługa kliknięcia przycisku "Pobierz pogodę"
         private async void button1_Click(object sender, EventArgs e)
         {
-            string selectedCity = comboBoxCities.SelectedItem?.ToString();
-            string lat = textBox1.Text;
-            string lon = textBox2.Text;
-
-            // Jeśli miasto zostało wybrane z ComboBox
-            if (!string.IsNullOrEmpty(selectedCity))
-            {
-                using (var db = new AppDbContext())
-                {
-                    var city = db.Cities.FirstOrDefault(c => c.Name == selectedCity);
-                    if (city != null)
-                    {
-                        DisplayWeather(city.WeatherData.OrderByDescending(w => w.Id).First());  // Zakładając, że masz relację z WeatherData w City
-                        return;
-                    }
-                }
-            }
-
-            // Jeśli współrzędne zostały wprowadzone, spróbuj pobrać dane z API
-            if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lon))
-            {
-                MessageBox.Show("Proszę podać współrzędne (szerokość i długość geograficzną).", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
             try
             {
-                double latitude = double.Parse(lat, CultureInfo.InvariantCulture);
-                double longitude = double.Parse(lon, CultureInfo.InvariantCulture);
+                string cityName = textBox3.Text.Trim();
+                bool hasCoordinates = double.TryParse(textBox1.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double latitude) &&
+                                      double.TryParse(textBox2.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double longitude);
 
-                string apiKey = "6115f0cc1473a569cf89607b7072e0dd";
-                string call = $"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={apiKey}";
+                City city = null;
+                WeatherData weatherData = null;
 
-                string response = await client.GetStringAsync(call);
-                ToDo t = JsonSerializer.Deserialize<ToDo>(response);
-
-                using (var db = new AppDbContext())
+                if (!string.IsNullOrEmpty(cityName))
                 {
-                    var weatherData = new WeatherData
+                    city = db.Cities.Include(c => c.WeatherData).FirstOrDefault(c => c.Name.ToLower() == cityName.ToLower());
+                    weatherData = city?.WeatherData.OrderByDescending(w => w.Id).FirstOrDefault();
+                }
+
+                if (city != null && weatherData != null)
+                {
+                    DisplayWeather(weatherData);
+                    return;
+                }
+
+                if (hasCoordinates)
+                {
+                    string apiKey = "6115f0cc1473a569cf89607b7072e0dd";
+                    string call = $"https://api.openweathermap.org/data/2.5/weather?lat={textBox1.Text}&lon={textBox2.Text}&appid={apiKey}&units=metric";
+
+                    string response = await client.GetStringAsync(call);
+                    var weatherInfo = JsonSerializer.Deserialize<ToDo>(response);
+
+                    if (weatherInfo == null || weatherInfo.coord == null)
                     {
-                        City = t.name,
-                        Timezone = t.timezone,
-                        Lat = t.coord.lat,
-                        Lon = t.coord.lon,
-                        Temperature = t.main.temp - 273.15,
-                        Humidity = t.main.humidity,
-                        Pressure = t.main.pressure,
-                        WeatherDescription = t.weather[0].description,
-                        WindSpeed = t.wind.speed,
-                        Sunrise = t.sys.sunrise,
-                        Sunset = t.sys.sunset
+                        MessageBox.Show("Podane miasto nie istnieje w bazie ani w API.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    city = new City
+                    {
+                        Name = weatherInfo.name,
+                        Lat = weatherInfo.coord.lat,
+                        Lon = weatherInfo.coord.lon,
+                        Timezone = weatherInfo.timezone
+                    };
+                    db.Cities.Add(city);
+                    db.SaveChanges();
+
+                    weatherData = new WeatherData
+                    {
+                        CityId = city.Id,
+                        Temperature = weatherInfo.main.temp,
+                        Humidity = weatherInfo.main.humidity,
+                        Pressure = weatherInfo.main.pressure,
+                        WeatherDescription = weatherInfo.weather.FirstOrDefault()?.description ?? "Brak danych",
+                        WindSpeed = weatherInfo.wind.speed,
+                        Sunrise = weatherInfo.sys.sunrise,
+                        Sunset = weatherInfo.sys.sunset
                     };
 
-                    // Zapisz dane pogodowe w bazie
                     db.WeatherRecords.Add(weatherData);
                     db.SaveChanges();
+
+                    DisplayWeather(weatherData);
                 }
-                DisplayWeather(t);
-            }
-            catch (FormatException)
-            {
-                MessageBox.Show("Współrzędne muszą być liczbami zmiennoprzecinkowymi, oddzielonymi kropką (np. 52.2298).", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else
+                {
+                    MessageBox.Show("Miasto nie zostało znalezione w bazie, a brak współrzędnych do API.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -105,13 +97,12 @@ namespace WeatherForm
             }
         }
 
-        // Metoda wyświetlania danych pogodowych
         private void DisplayWeather(WeatherData weather)
         {
             listBox1.Items.Clear();
-            listBox1.Items.Add($"City: {weather.City}");
-            listBox1.Items.Add($"Timezone: {weather.Timezone}");
-            listBox1.Items.Add($"Coordinates: Lat={weather.Lat}, Lon={weather.Lon}");
+            listBox1.Items.Add($"City: {weather.City.Name}");
+            listBox1.Items.Add($"Coordinates: Lat={weather.City.Lat}, Lon={weather.City.Lon}");
+            listBox1.Items.Add($"Timezone: {weather.City.Timezone}");
             listBox1.Items.Add($"Temperature: {weather.Temperature}°C");
             listBox1.Items.Add($"Humidity: {weather.Humidity}%");
             listBox1.Items.Add($"Pressure: {weather.Pressure} hPa");
@@ -120,15 +111,8 @@ namespace WeatherForm
             listBox1.Items.Add($"Sunrise: {DateTimeOffset.FromUnixTimeSeconds(weather.Sunrise).ToLocalTime()}");
             listBox1.Items.Add($"Sunset: {DateTimeOffset.FromUnixTimeSeconds(weather.Sunset).ToLocalTime()}");
         }
-
-        // Załóżmy, że ComboBox jest wczytywany przy starcie aplikacji
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            LoadCities();
-        }
     }
 
-    // Klasy do deserializacji danych z API OpenWeather
     internal class ToDo
     {
         public string name { get; set; }

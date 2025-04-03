@@ -7,16 +7,10 @@ namespace WeatherForm.Models
     {
         [Key]
         public int Id { get; set; }
-
-        [Required]
-        public string Name { get; set; }
-
-        [Required]
-        public double Lat { get; set; }
-
-        [Required]
-        public double Lon { get; set; }
-        public int Timezone { get; set; }
+        public required string Name { get; set; }
+        public required double Lat { get; set; }
+        public required double Lon { get; set; }
+        public int? Timezone { get; set; }
 
         // Relacja: jedno miasto może mieć wiele wpisów pogodowych
         public ICollection<WeatherData> WeatherData { get; set; }
