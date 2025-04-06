@@ -92,8 +92,7 @@ public class WeatherData
     public required double WindSpeed { get; set; }
     public required long Sunrise { get; set; }
     public required long Sunset { get; set; }
-    [Required]
-    public DateTime Timestamp { get; set; }
+    public required DateTime Timestamp { get; set; }
 }
 ```
 **Zależności między tabelami**
