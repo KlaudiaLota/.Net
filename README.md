@@ -7,3 +7,7 @@ Program realizuje rozwiązanie klasycznego zadania FizzBuzz. Składa się z dwó
 # Lab1 - KnapsackProblem
 
 Program implementuje rozwiązanie problemu plecakowego w aplikacji C# z użyciem Windows Forms. Użytkownik wprowadza dane, takie jak liczba przedmiotów, pojemność plecaka i ziarno (seed), a system generuje losowe przedmioty. Aplikacja sprawdza poprawność danych, a po kliknięciu przycisku "Solve problem" wyświetla rozwiązanie oparte na algorytmie zachłannym. Algorytm sortuje przedmioty według stosunku wartości do wagi, a następnie dodaje je do plecaka. Zaimplementowano również testy, które weryfikują poprawność i wydajność algorytmu w różnych scenariuszach, takich jak liczba przedmiotów, pojemność plecaka i czas działania przy dużej liczbie przedmiotów.
+
+# Lab2 - Weather App
+
+Aplikacja korzysta z API OpenWeather do pobierania danych pogodowych. Gdy brak danych w bazie, wysyła zapytanie do API i zapisuje otrzymane informacje w bazie. Struktura bazy danych opiera się na dwóch głównych tabelach: `Cities` (przechowującej dane o miastach) oraz `WeatherData` (z danymi pogodowymi). Tabele są powiązane relacją jeden-do-wielu, co oznacza, że jedno miasto może mieć wiele rekordów pogodowych. Aplikacja oferuje także funkcje do czyszczenia bazy danych oraz walidacji wprowadzanych współrzędnych geograficznych.
