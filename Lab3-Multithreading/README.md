@@ -34,7 +34,40 @@ Użytkownik może na początku programu określić rozmiar macierzy, liczbę wą
 W celu uzyskania wiarygodnych wyników, pomiary czasu wykonania były uśredniane z wielu prób. Dodatkowo porównano rezultaty dla różnych rozmiarów macierzy (100x100, 300x300, 500x500) oraz różnych liczby wątków (1, 2, 4, 8, 16, 32), także przekraczających liczbę logicznych rdzeni CPU. 
 
 Wyniki są następujące:
-...
+
+#### Rozmiar macierzy: 100x100
+
+| Liczba wątków | Parallel (czas) | Przyspieszenie | Thread (czas) | Przyspieszenie |
+|---------------|------------------|---------------|----------------|-------------|
+| 1             | 19,08 ms         | 1,00x         | 46,91 ms       | 1,00x       |
+| 2             | 9,76 ms          | 1,95x         | 19,57 ms       | 2,40x       |
+| 4             | 5,43 ms          | 3,51x         | 20,27 ms       | 2,31x       |
+| 8             | 6,27 ms          | 3,04x         | 44,87 ms       | 1,05x       |
+| 16            | 5,78 ms          | 3,30x         | 76,09 ms       | 0,62x       |
+| 32            | 3,45 ms          | 5,53x         | 151,35 ms      | 0,31x       |
+
+#### Rozmiar macierzy: 200x200
+
+| Liczba wątków | Parallel (czas) | Przyspieszenie | Thread (czas) | Przyspieszenie |
+|---------------|------------------|---------------|----------------|-------------|
+| 1             | 128,15 ms        | 1,00x         | 139,05 ms      | 1,00x       |
+| 2             | 70,13 ms         | 1,83x         | 80,74 ms       | 1,72x       |
+| 4             | 40,79 ms         | 3,14x         | 57,97 ms       | 2,40x       |
+| 8             | 27,49 ms         | 4,66x         | 68,07 ms       | 2,04x       |
+| 16            | 25,05 ms         | 5,11x         | 107,00 ms      | 1,30x       |
+| 32            | 21,35 ms         | 6,00x         | 181,92 ms      | 0,76x       |
+
+#### Rozmiar macierzy: 500x500
+
+| Liczba wątków | Parallel (czas) | Przyspieszenie | Thread (czas) | Przyspieszenie |
+|---------------|------------------|---------------|----------------|-------------|
+| 1             | 2060,06 ms       | 1,00x         | 2153,59 ms     | 1,00x       |
+| 2             | 1103,38 ms       | 1,87x         | 1127,01 ms     | 1,91x       |
+| 4             | 620,14 ms        | 3,32x         | 658,86 ms      | 3,27x       |
+| 8             | 432,89 ms        | 4,76x         | 491,27 ms      | 4,38x       |
+| 16            | 352,79 ms        | 5,84x         | 518,47 ms      | 4,15x       |
+| 32            | 347,89 ms        | 5,92x         | 586,30 ms      | 3,67x       |
+
 
 ## Aplikacja okienkowa do równoległego przetwarzania obrazów
 
@@ -62,7 +95,7 @@ avg > threshold ? Color.White : Color.Black;
 
 Po zakończeniu przetwarzania, wszystkie przefiltrowane obrazy były wyświetlane w oknie aplikacji w układzie 2x2, z podpisami pod obrazami. Użytkownik mógł łatwo porównać efekty działania każdego filtra z oryginałem. Aby poprawić estetykę interfejsu, obrazy były skalowane do stałego rozmiaru i ustawione w trybie `Zoom`, co umożliwiało ich pełne wyświetlenie bez zniekształceń.
 
-**Wygląd aplikacji wraz z przykładową grafiką**
+#### Wygląd aplikacji wraz z przykładową grafiką
 
 ![image](https://github.com/user-attachments/assets/f57261fa-191d-4337-b67c-391367f571e1)
 
