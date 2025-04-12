@@ -31,7 +31,7 @@ Użytkownik może na początku programu określić rozmiar macierzy, liczbę wą
           thread.Join();
       ```
 
-W celu uzyskania wiarygodnych wyników, pomiary czasu wykonania były uśredniane z wielu prób. Dodatkowo porównano rezultaty dla różnych rozmiarów macierzy (100x100, 300x300, 500x500) oraz różnych liczby wątków (1, 2, 4, 8, 16, 32), także przekraczających liczbę logicznych rdzeni CPU. 
+W celu uzyskania wiarygodnych wyników, pomiary czasu wykonania były uśredniane z wielu prób. Dodatkowo porównano rezultaty dla różnych rozmiarów macierzy (100x100, 300x300, 500x500) oraz różnych liczby wątków (1, 2, 4, 8, 16, 32), także przekraczających liczbę logicznych rdzeni CPU. Badania zostały przeprowadzone na komputerze wyposażonym w procesor AMD Ryzen 5 3600, kartę graficzną GTX 1660 VENTUS oraz 16 GB pamięci RAM.
 
 Wyniki są następujące:
 
@@ -46,6 +46,9 @@ Wyniki są następujące:
 | 16            | 5,78 ms          | 3,30x         | 76,09 ms       | 0,62x       |
 | 32            | 3,45 ms          | 5,53x         | 151,35 ms      | 0,31x       |
 
+- `Parallel` zdecydowanie lepiej radzi sobie przy większej liczbie wątków — zauważalny jest wzrost przyspieszenia aż do 5,53x (dla 32 wątków).
+- W przypadku `Thread`, wydajność spada przy większej liczbie wątków — przy 32 jest znacznie gorzej niż przy 1 (0,31x), co świadczy o **przeciążeniu** systemu zarządzaniem wątkami i wysokim narzucie kontekstowym.
+
 #### Rozmiar macierzy: 200x200
 
 | Liczba wątków | Parallel (czas) | Przyspieszenie | Thread (czas) | Przyspieszenie |
@@ -56,6 +59,9 @@ Wyniki są następujące:
 | 8             | 27,49 ms         | 4,66x         | 68,07 ms       | 2,04x       |
 | 16            | 25,05 ms         | 5,11x         | 107,00 ms      | 1,30x       |
 | 32            | 21,35 ms         | 6,00x         | 181,92 ms      | 0,76x       |
+
+- `Parallel` dalej pokazuje stabilne i rosnące przyspieszenie wraz z liczbą wątków — do 6x.
+- `Thread` początkowo wykazuje poprawę, ale po przekroczeniu 4–8 wątków wydajność spada, a czas obliczeń zaczyna rosnąć.
 
 #### Rozmiar macierzy: 500x500
 
@@ -68,6 +74,21 @@ Wyniki są następujące:
 | 16            | 352,79 ms        | 5,84x         | 518,47 ms      | 4,15x       |
 | 32            | 347,89 ms        | 5,92x         | 586,30 ms      | 3,67x       |
 
+- Obie metody pokazują wzrost przyspieszenia do pewnego momentu.
+- `Parallel` ponownie okazuje się bardziej stabilny i efektywny, nawet przy 32 wątkach.
+- `Thread` przy większej liczbie wątków nadal działa gorzej niż `Parallel`, mimo zauważalnych przyspieszeń do ok. 4x–5x.
+
+#### Wykresy porównawcze
+
+<img src="https://github.com/user-attachments/assets/6bbfe440-73bb-4ce7-b9aa-abd20f417e2c" alt="image" width="800">
+
+#### **Wnioski**
+
+- **Zastosowanie równoległości znacząco skraca czas obliczeń** – zarówno przy wykorzystaniu wysokopoziomowego API `Parallel`, jak i niskopoziomowego `Thread`, uzyskano istotne skrócenie czasu przetwarzania w porównaniu do wersji sekwencyjnej.
+- **Zyski ze zrównoleglenia rosną wraz z rozmiarem macierzy** – dla małych rozmiarów macierzy przyspieszenia były ograniczone, ponieważ narzuty związane z zarządzaniem wątkami mogły przewyższyć zyski z równoległości. Natomiast dla dużych macierzy, wzrost liczby wątków dawał wyraźne skrócenie czasu.
+- **Optymalna liczba wątków nie zawsze pokrywa się z fizyczną liczbą rdzeni** – wyniki pokazały, że przy odpowiednio dużych danych nawet liczba wątków większa niż liczba rdzeni mogła przynieść poprawę (w przypadku `Parallel`). Jednak w przypadku `Thread`, przekroczenie tej granicy skutkowało wyraźnym spadkiem efektywności.
+- **Parallel działa stabilniej i wydajniej przy większej liczbie wątków** – dla wszystkich rozmiarów macierzy biblioteka `Parallel` lepiej radziła sobie z przydziałem zadań i zarządzaniem zasobami. Szczególnie przy większej liczbie wątków, `Thread` traciło na wydajności, a nawet powodowało pogorszenie czasu względem mniejszej liczby wątków.
+- **Wydajność `Thread` spada przy zbyt dużej liczbie wątków** – tworzenie i zarządzanie zbyt wieloma wątkami manualnie powodowało większe narzuty systemowe i przełączenia kontekstu, co prowadziło do spadku efektywności. W skrajnych przypadkach, czas był gorszy niż dla wersji jednoprocesowej.
 
 ## Aplikacja okienkowa do równoległego przetwarzania obrazów
 
