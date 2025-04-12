@@ -11,3 +11,8 @@ Program implementuje rozwiązanie problemu plecakowego w aplikacji C# z użyciem
 # Lab2 - Weather App
 
 Aplikacja korzysta z API OpenWeather do pobierania danych pogodowych. Gdy brak danych w bazie, wysyła zapytanie do API i zapisuje otrzymane informacje w bazie. Struktura bazy danych opiera się na dwóch głównych tabelach: `Cities` (przechowującej dane o miastach) oraz `WeatherData` (z danymi pogodowymi). Tabele są powiązane relacją jeden-do-wielu, co oznacza, że jedno miasto może mieć wiele rekordów pogodowych. Aplikacja oferuje także funkcje do czyszczenia bazy danych oraz walidacji wprowadzanych współrzędnych geograficznych.
+
+# Lab3 - Multithreading
+
+Projekt składał się z dwóch głównych zadań związanych z programowaniem współbieżnym, mających na celu porównanie efektywności różnych technik równoległego przetwarzania. W pierwszej części badano wydajność mnożenia macierzy przy użyciu dwóch podejść do wielowątkowości: `Parallel.For`, reprezentującego rozwiązanie wysokopoziomowe, oraz `Thread`, które jest metodą niskopoziomową. W drugiej części projektu stworzono aplikację okienkową, która umożliwia równoczesne stosowanie kilku filtrów na jednym obrazie. Filtry były przetwarzane w osobnych wątkach, co pozwoliło na efektywne wykorzystanie dostępnych rdzeni procesora i znacząco skróciło czas przetwarzania obrazów. 
+
