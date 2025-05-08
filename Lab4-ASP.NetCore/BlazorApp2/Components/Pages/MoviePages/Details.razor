@@ -1,0 +1,114 @@
+﻿@page "/movies/details"
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp2.Components.Movies
+@using Microsoft.AspNetCore.Authorization;
+@using BlazorApp2.Data
+@inject IDbContextFactory<BlazorApp2.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject ApplicationDbContext _context
+@attribute [Authorize]
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+	<h2>Movie</h2>
+    @if (movie is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@movie.Title</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@movie.Description</dd>
+            <dt class="col-sm-2">ReleaseDate</dt>
+            <dd class="col-sm-10">@movie.ReleaseDate?.ToString("yyyy-MM-dd")</dd>
+            <dt class="col-sm-2">Rate</dt>
+            <dd class="col-sm-10">@movie.Rate</dd>
+            <dt class="col-sm-2">Image</dt>
+            <dd class="col-sm-10">
+                @if (!string.IsNullOrWhiteSpace(movie.ImageUrl))
+                {
+                    <img src="@movie.ImageUrl" alt="Movie Image" style="max-width:300px;" />
+                }
+                else
+                {
+                    <em>No image</em>
+                }
+            </dd>
+        </dl>
+
+        <h3>Update Rating</h3>
+        <EditForm Model="@movie" OnValidSubmit="UpdateRate" FormName="ratingForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="newRating">New Rating</label>
+                <InputNumber id="userRate" @bind-Value="userRate" class="form-control" min="0" max="10" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update Rating</button>
+        </EditForm>
+
+        <div>
+            <a href="@($"/movies/edit?id={movie.Id}")">Edit</a> |
+            <a href="@($"/movies")">Back to List</a>
+        </div>
+        <iframe width="100"
+                height="250"
+                frameborder="0"
+                style="border:0"
+                src="https://www.google.com/maps/embed/v1/place?q=Wrocław&key=AIzaSyC2lRQDSanJwNGBwHKAa7OP1y_bt8XGQ10"
+                allowfullscreen>
+        </iframe>
+
+    }
+</div>
+
+@code {
+    private Movie? movie;
+    private float userRate;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        movie = await context.Movies.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (movie is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task UpdateRate()
+    {
+        if (movie is null || userRate <= 0 || userRate > 10)
+            return;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var dbMovie = await context.Movies.FirstOrDefaultAsync(m => m.Id == Id);
+        if (dbMovie != null)
+        {
+            if (dbMovie.Rate.HasValue)
+            {
+                dbMovie.Rate = (dbMovie.Rate.Value + userRate) / 2f;
+            }
+            else
+            {
+                dbMovie.Rate = userRate;
+            }
+
+            await context.SaveChangesAsync();
+            movie.Rate = dbMovie.Rate; // odśwież lokalnie
+        }
+    }
+}

@@ -1,0 +1,128 @@
+﻿@page "/movies"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorApp2.Components.Movies
+@using BlazorApp2.Data
+@using Microsoft.AspNetCore.Authorization;
+@inject IDbContextFactory<BlazorApp2.Data.ApplicationDbContext> DbFactory
+@inject ApplicationDbContext _context
+@inject NavigationManager NavigationManager 
+@attribute [Authorize]
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+<PageTitle>Movies</PageTitle>
+
+<h1>Movies List</h1>
+
+<p>
+    <a href="/movies/create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th> <button class="btn btn-link" @onclick="SortByTitle">Title</button> </th>
+            <th> <button class="btn btn-link" @onclick="SortByReleaseDate">Release Date</button> </th>
+            <th> <button class="btn btn-link" @onclick="SortByRating">Rating</button> </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (movies != null && movies.Any())
+        {
+            @foreach (var movie in movies)
+            {
+                <tr>
+                    <td>@movie.Title</td>
+                    <td>@movie.ReleaseDate?.ToShortDateString()</td>
+                    <td>@movie.Rate</td>
+                    <td>
+                        <a href="@($"/movies/edit?id={movie.Id}")">Edit</a>
+                        <a href="@($"/movies/details?id={movie.Id}")">Details</a> 
+                        <a href="@($"/movies/delete?id={movie.Id}")">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+		{
+			<tr>
+				<td colspan="4" class="text-center">No movies to display</td>
+			</tr>
+		}
+    </tbody>
+</table>
+
+@code {
+    private List<Movie> movies = new List<Movie>();
+    private bool sortAsc = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            movies = await _context.Movies.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd podczas ładowania danych: {ex.Message}");
+        }
+    }
+
+    private bool title = true;
+    private bool releaseDate = true;
+    private bool rating = true;
+
+    private void SortByTitle()
+    {
+        if (title)
+            movies = movies.OrderBy(m => m.Title).ToList();
+        else
+            movies = movies.OrderByDescending(m => m.Title).ToList();
+
+        title = !title;
+    }
+
+    private void SortByReleaseDate()
+    {
+        if (releaseDate)
+            movies = movies.OrderBy(m => m.ReleaseDate).ToList();
+        else
+            movies = movies.OrderByDescending(m => m.ReleaseDate).ToList();
+
+        releaseDate = !releaseDate;
+    }
+
+    private void SortByRating()
+    {
+        if (rating)
+            movies = movies.OrderByDescending(m => m.Rate).ToList();
+        else
+            movies = movies.OrderBy(m => m.Rate).ToList();
+
+        rating = !rating;
+    }
+
+
+
+    private void GoToCreatePage()
+    {
+        NavigationManager.NavigateTo("/movies/create");
+    }
+
+    private void EditMovie(int id)
+    {
+        NavigationManager.NavigateTo($"/movies/edit/{id}");
+    }
+
+    private async Task DeleteMovie(int id)
+    {
+        var movie = await _context.Movies.FindAsync(id);
+        if (movie != null)
+        {
+            _context.Movies.Remove(movie);
+            await _context.SaveChangesAsync();
+            movies.Remove(movie);
+        }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BlazorApp2.Components
+namespace BlazorApp2.Components.Movies
 {
     public class Movie
     {
@@ -9,7 +9,7 @@ namespace BlazorApp2.Components
         public string? Description { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime? RelaseDate { get; set; }
+        public DateTime? ReleaseDate { get; set; }
 
         public float? Rate { get; set; }
 

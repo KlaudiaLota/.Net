@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using BlazorApp2.Components;
+using BlazorApp2.Components.Movies;
 
 namespace BlazorApp2.Data
 {
@@ -8,6 +8,6 @@ namespace BlazorApp2.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Movie> Notes { get; set; }
+        public DbSet<Movie> Movies { get; set; }
     }
 }
