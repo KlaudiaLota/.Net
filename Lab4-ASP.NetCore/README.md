@@ -1,4 +1,4 @@
-# 🌦️ BlazorApp2 - aplikacja pogodowa
+# 🌦️ BlazorApp - aplikacja pogodowa
 
 Aplikacja pogodowa to prosty interaktywny komponent stworzony w technologii **Blazor Server**, który umożliwia użytkownikowi wyświetlanie, filtrowanie i analizę prognozy pogody na najbliższe 10 dni.
 
